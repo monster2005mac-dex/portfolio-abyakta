@@ -320,8 +320,45 @@ function decodeShareData(value) {
   for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return JSON.parse(new TextDecoder().decode(bytes));
 }
+function bytesToBase64(bytes) {
+  var binary = "";
+  for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function base64ToBytes(value) {
+  var base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) base64 += "=";
+  var binary = atob(base64), bytes = new Uint8Array(binary.length);
+  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+async function deriveShareKey(password, salt) {
+  var material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: salt, iterations: 250000, hash: "SHA-256" },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+async function encryptShareData(value, password) {
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var key = await deriveShareKey(password, salt);
+  var plaintext = new TextEncoder().encode(JSON.stringify(value));
+  var encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, plaintext);
+  return { v: 1, s: bytesToBase64(salt), i: bytesToBase64(iv), c: bytesToBase64(new Uint8Array(encrypted)) };
+}
+async function decryptShareData(payload, password) {
+  var salt = base64ToBytes(payload.s), iv = base64ToBytes(payload.i), encrypted = base64ToBytes(payload.c);
+  var key = await deriveShareKey(password, salt);
+  var plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, encrypted);
+  return JSON.parse(new TextDecoder().decode(plaintext));
+}
 function syncShareUrl() {
   if (!state) return;
+  if (location.hash.indexOf("#portfolio-e=") === 0) return;
   var url = new URL(location.href);
   url.hash = "portfolio=" + encodeShareData(state);
   history.replaceState(null, "", url.href);
@@ -356,6 +393,23 @@ function load() {
     try { return decodeShareData(location.hash.slice("#portfolio=".length)); } catch (e) {}
   }
   try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
+  return clone(SAMPLE);
+}
+async function loadPortfolio() {
+  var prefix = "#portfolio-e=";
+  if (location.hash.indexOf(prefix) !== 0) return load();
+  var payload;
+  try { payload = decodeShareData(location.hash.slice(prefix.length)); }
+  catch (e) { alert("This encrypted share link is damaged."); return load(); }
+  for (var attempts = 0; attempts < 3; attempts++) {
+    var password = window.prompt(attempts ? "Incorrect password. Try again:" : "Enter the password for this encrypted portfolio:");
+    if (password == null) break;
+    try {
+      var sharedState = await decryptShareData(payload, password);
+      return sharedState;
+    } catch (e) {}
+  }
+  alert("The portfolio could not be unlocked. Ask the sender for the correct password.");
   return clone(SAMPLE);
 }
 function save() {
@@ -597,17 +651,26 @@ document.addEventListener("change", function (e) {
 });
 document.getElementById("toggle").addEventListener("click", function () { if (locked) return; editing = !editing; render(); });
 document.getElementById("share").addEventListener("click", function () {
-  syncShareUrl();
   var btn = this, url = location.href;
   function done(text) {
     btn.textContent = text;
     setTimeout(function () { btn.textContent = "Share link"; }, 1500);
   }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(url).then(function () { done("Link copied"); }).catch(function () { done("Copy URL"); });
-  } else if (window.prompt) {
-    window.prompt("Copy this share link", url);
-  }
+  var password = window.prompt("Set a password for this share link (at least 4 characters)");
+  if (!password || password.length < 4) { if (password != null) done("Password too short"); return; }
+  var confirmation = window.prompt("Repeat the share-link password");
+  if (confirmation !== password) { done("Passwords differ"); return; }
+  encryptShareData(state, password).then(function (payload) {
+    var shareUrl = new URL(location.href);
+    shareUrl.hash = "portfolio-e=" + encodeShareData(payload);
+    url = shareUrl.href;
+    history.replaceState(null, "", url);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { done("Encrypted link copied"); }).catch(function () { window.prompt("Copy this encrypted share link", url); });
+    } else {
+      window.prompt("Copy this encrypted share link", url);
+    }
+  }).catch(function () { done("Encryption failed"); });
 });
 
 /* password lock: hides all editing controls until the password is entered via the faint name at the bottom */
@@ -677,16 +740,18 @@ document.getElementById("reset").addEventListener("click", function () {
   var hu = state.hue; state = clone(SAMPLE); state.hue = hu; save(); render();
 });
 
-state = load();
-document.title = (state.name ? state.name + " | Portfolio" : "Portfolio");
-if (state.hue == null || HUES.indexOf(state.hue) < 0) state.hue = 228;
-if (state.greeting == null) state.greeting = "Hello!";
-if (/^I study at Newton School/.test(state.bio || "")) state.bio = SAMPLE.bio;
-["socials", "facts", "achievements"].forEach(function (k) { if (!state[k]) state[k] = clone(SAMPLE[k]); });
-locked = lsGet(LOCK_KEY) === "1" && !!lsGet(PW_KEY);
-document.body.classList.toggle("locked", locked);
-document.getElementById("unlock").style.cursor = locked ? "pointer" : "default";
-render();
+loadPortfolio().then(function (loaded) {
+  state = loaded;
+  document.title = (state.name ? state.name + " | Portfolio" : "Portfolio");
+  if (state.hue == null || HUES.indexOf(state.hue) < 0) state.hue = 228;
+  if (state.greeting == null) state.greeting = "Hello!";
+  if (/^I study at Newton School/.test(state.bio || "")) state.bio = SAMPLE.bio;
+  ["socials", "facts", "achievements"].forEach(function (k) { if (!state[k]) state[k] = clone(SAMPLE[k]); });
+  locked = lsGet(LOCK_KEY) === "1" && !!lsGet(PW_KEY);
+  document.body.classList.toggle("locked", locked);
+  document.getElementById("unlock").style.cursor = locked ? "pointer" : "default";
+  render();
+});
 </script>
 
 

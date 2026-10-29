@@ -320,6 +320,15 @@ function decodeShareData(value) {
   for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return JSON.parse(new TextDecoder().decode(bytes));
 }
+function encodeEncryptedPayload(payload) {
+  return encodeURIComponent(JSON.stringify(payload)).replace(/'/g, "%27");
+}
+function decodeEncryptedPayload(value) {
+  try { return JSON.parse(decodeURIComponent(value)); }
+  catch (e) {
+    return decodeShareData(value);
+  }
+}
 function bytesToBase64(bytes) {
   var binary = "";
   for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
@@ -399,8 +408,12 @@ async function loadPortfolio() {
   var prefix = "#portfolio-e=";
   if (location.hash.indexOf(prefix) !== 0) return load();
   var payload;
-  try { payload = decodeShareData(location.hash.slice(prefix.length)); }
+  try { payload = decodeEncryptedPayload(location.hash.slice(prefix.length)); }
   catch (e) { alert("This encrypted share link is damaged."); return load(); }
+  if (!payload || payload.v !== 1 || !payload.s || !payload.i || !payload.c) {
+    alert("This encrypted share link is damaged.");
+    return load();
+  }
   for (var attempts = 0; attempts < 3; attempts++) {
     var password = window.prompt(attempts ? "Incorrect password. Try again:" : "Enter the password for this encrypted portfolio:");
     if (password == null) break;
@@ -662,7 +675,7 @@ document.getElementById("share").addEventListener("click", function () {
   if (confirmation !== password) { done("Passwords differ"); return; }
   encryptShareData(state, password).then(function (payload) {
     var shareUrl = new URL(location.href);
-    shareUrl.hash = "portfolio-e=" + encodeShareData(payload);
+    shareUrl.hash = "portfolio-e=" + encodeEncryptedPayload(payload);
     url = shareUrl.href;
     history.replaceState(null, "", url);
     if (navigator.clipboard && navigator.clipboard.writeText) {

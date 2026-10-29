@@ -12,8 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head>
 <body>
 <style>
@@ -269,21 +267,6 @@ body:not(.editing) .edit-only { display: none !important; }
 
 <script>
 var KEY = "portfolio-v1";
-var FIREBASE_CONFIG = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID"
-};
-var firestore = null;
-try {
-  if (!FIREBASE_CONFIG.apiKey.startsWith("YOUR_")) {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    firestore = firebase.firestore();
-  }
-} catch (e) {}
 var SAMPLE = {
   greeting: "Hello!",
   name: "Your Name",
@@ -375,7 +358,6 @@ async function decryptShareData(payload, password) {
 }
 function syncShareUrl() {
   if (!state) return;
-  if (new URL(location.href).searchParams.has("portfolio")) return;
   if (location.hash.indexOf("#portfolio-e=") === 0) return;
   var url = new URL(location.href);
   url.hash = "portfolio=" + encodeShareData(state);
@@ -414,27 +396,6 @@ function load() {
   return clone(SAMPLE);
 }
 async function loadPortfolio() {
-  var sharedId = new URL(location.href).searchParams.get("portfolio");
-  if (sharedId) {
-    if (!firestore) {
-      alert("Firestore sharing is not configured. Contact the portfolio owner.");
-      return load();
-    }
-    var snapshot;
-    try { snapshot = await firestore.collection("portfolios").doc(sharedId).get(); }
-    catch (e) { alert("This portfolio link could not be loaded."); return load(); }
-    if (!snapshot.exists) { alert("This portfolio link does not exist."); return load(); }
-    var payload = snapshot.data().encrypted;
-    if (!payload) { alert("This portfolio share is damaged."); return load(); }
-    for (var attempt = 0; attempt < 3; attempt++) {
-      var password = window.prompt(attempt ? "Incorrect password. Try again:" : "Enter the password for this encrypted portfolio:");
-      if (password == null) break;
-      try { return await decryptShareData(payload, password); }
-      catch (e) {}
-    }
-    alert("The portfolio could not be unlocked. Ask the sender for the correct password.");
-    return clone(SAMPLE);
-  }
   var prefix = "#portfolio-e=";
   if (location.hash.indexOf(prefix) !== 0) return load();
   var payload;
@@ -700,24 +661,15 @@ document.getElementById("share").addEventListener("click", function () {
   var confirmation = window.prompt("Repeat the share-link password");
   if (confirmation !== password) { done("Passwords differ"); return; }
   encryptShareData(state, password).then(function (payload) {
-    if (!firestore) { done("Firestore not configured"); return; }
-    var id = state.shareId || (typeof crypto.randomUUID === "function" ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-    state.shareId = id;
-    firestore.collection("portfolios").doc(id).set({
-      encrypted: payload,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function () {
-      var shareUrl = new URL(location.href);
-      shareUrl.searchParams.set("portfolio", id);
-      shareUrl.hash = "";
-      url = shareUrl.href;
-      history.replaceState(null, "", url);
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () { done("Firestore link copied"); }).catch(function () { window.prompt("Copy this encrypted share link", url); });
-      } else {
-        window.prompt("Copy this encrypted share link", url);
-      }
-    }).catch(function () { done("Firestore save failed"); });
+    var shareUrl = new URL(location.href);
+    shareUrl.hash = "portfolio-e=" + encodeShareData(payload);
+    url = shareUrl.href;
+    history.replaceState(null, "", url);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { done("Encrypted link copied"); }).catch(function () { window.prompt("Copy this encrypted share link", url); });
+    } else {
+      window.prompt("Copy this encrypted share link", url);
+    }
   }).catch(function () { done("Encryption failed"); });
 });
 

@@ -1,8 +1,18 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Editable Portfolio</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3f4f8">
+<meta name="description" content="Personal portfolio, projects, skills, education, and contact information.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Your Name | Portfolio">
+<meta property="og:description" content="Projects, skills, experience, and ways to get in touch.">
+<title>Your Name | Portfolio</title><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head>
+<body>
 <style>
 /* Layout: floating glass nav, one big rounded hero panel, bento project grid, timelines, closing contact panel */
 :root {
@@ -597,6 +607,7 @@ document.getElementById("reset").addEventListener("click", function () {
 });
 
 state = load();
+document.title = (state.name ? state.name + " | Portfolio" : "Portfolio");
 if (state.hue == null || HUES.indexOf(state.hue) < 0) state.hue = 228;
 if (state.greeting == null) state.greeting = "Hello!";
 if (/^I study at Newton School/.test(state.bio || "")) state.bio = SAMPLE.bio;
@@ -607,4 +618,6 @@ document.getElementById("unlock").style.cursor = locked ? "pointer" : "default";
 render();
 </script>
 
-</body></html>
+
+</body>
+</html>

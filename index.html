@@ -329,6 +329,22 @@ function decodeEncryptedPayload(value) {
     return decodeShareData(value);
   }
 }
+async function compressSharePayload(payload) {
+  var input = new TextEncoder().encode(JSON.stringify(payload));
+  if (!window.CompressionStream) return { v: 2, raw: bytesToBase64(input) };
+  var stream = new Blob([input]).stream().pipeThrough(new CompressionStream("deflate"));
+  var compressed = new Uint8Array(await new Response(stream).arrayBuffer());
+  return { v: 2, z: bytesToBase64(compressed) };
+}
+async function decompressSharePayload(payload) {
+  if (!payload || payload.v !== 2) return payload;
+  var input = base64ToBytes(payload.z || payload.raw);
+  if (payload.raw) return JSON.parse(new TextDecoder().decode(input));
+  if (!window.DecompressionStream) throw new Error("Compressed share payload unsupported");
+  var stream = new Blob([input]).stream().pipeThrough(new DecompressionStream("deflate"));
+  var output = new Uint8Array(await new Response(stream).arrayBuffer());
+  return JSON.parse(new TextDecoder().decode(output));
+}
 function bytesToBase64(bytes) {
   var binary = "";
   for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
@@ -408,7 +424,7 @@ async function loadPortfolio() {
   var prefix = "#portfolio-e=";
   if (location.hash.indexOf(prefix) !== 0) return load();
   var payload;
-  try { payload = decodeEncryptedPayload(location.hash.slice(prefix.length)); }
+  try { payload = await decompressSharePayload(decodeEncryptedPayload(location.hash.slice(prefix.length))); }
   catch (e) { alert("This encrypted share link is damaged."); return load(); }
   if (!payload || payload.v !== 1 || !payload.s || !payload.i || !payload.c) {
     alert("This encrypted share link is damaged.");
@@ -673,7 +689,9 @@ document.getElementById("share").addEventListener("click", function () {
   if (!password || password.length < 4) { if (password != null) done("Password too short"); return; }
   var confirmation = window.prompt("Repeat the share-link password");
   if (confirmation !== password) { done("Passwords differ"); return; }
-  encryptShareData(state, password).then(function (payload) {
+  encryptShareData((function () { var shareState = clone(state); delete shareState.photo; return shareState; }()), password).then(function (payload) {
+    return compressSharePayload(payload);
+  }).then(function (payload) {
     var shareUrl = new URL(location.href);
     shareUrl.hash = "portfolio-e=" + encodeEncryptedPayload(payload);
     url = shareUrl.href;

@@ -237,6 +237,7 @@ body:not(.editing) .edit-only { display: none !important; }
       <div class="tools">
         <div class="swatches" id="swatches" role="group" aria-label="Accent colour"></div>
         <span class="saved" id="saved">saved</span>
+        <button class="btn" id="share" type="button">Share link</button>
         <button class="btn edit-only" id="pwbtn" type="button">Password</button>
         <button class="btn edit-only" id="lockbtn" type="button">Lock</button>
         <button class="btn danger edit-only" id="reset" type="button">Reset</button>
@@ -247,7 +248,7 @@ body:not(.editing) .edit-only { display: none !important; }
   </header>
   <div id="app"></div>
   <footer>
-    <span>Edits save in this browser.</span>
+    <span>Edits save in this browser and in your share link.</span>
     <button type="button" class="unlock" id="unlock" aria-label="Owner login"><span id="foot"></span></button>
   </footer>
 </div>
@@ -306,6 +307,25 @@ var SAMPLE = {
 
 var state, editing = false, timer;
 var revealObserver;
+function encodeShareData(value) {
+  var bytes = new TextEncoder().encode(JSON.stringify(value));
+  var binary = "";
+  for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decodeShareData(value) {
+  var base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) base64 += "=";
+  var binary = atob(base64), bytes = new Uint8Array(binary.length);
+  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function syncShareUrl() {
+  if (!state) return;
+  var url = new URL(location.href);
+  url.hash = "portfolio=" + encodeShareData(state);
+  history.replaceState(null, "", url.href);
+}
 function setupScrollReveal() {
   if (revealObserver) revealObserver.disconnect();
   if (reduced) return;
@@ -332,11 +352,15 @@ function setupScrollReveal() {
 }
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function load() {
+  if (location.hash.indexOf("#portfolio=") === 0) {
+    try { return decodeShareData(location.hash.slice("#portfolio=".length)); } catch (e) {}
+  }
   try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
   return clone(SAMPLE);
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  syncShareUrl();
   var el = document.getElementById("saved");
   el.classList.add("on"); clearTimeout(timer);
   timer = setTimeout(function () { el.classList.remove("on"); }, 1200);
@@ -572,6 +596,19 @@ document.addEventListener("change", function (e) {
   rd.readAsDataURL(e.target.files[0]);
 });
 document.getElementById("toggle").addEventListener("click", function () { if (locked) return; editing = !editing; render(); });
+document.getElementById("share").addEventListener("click", function () {
+  syncShareUrl();
+  var btn = this, url = location.href;
+  function done(text) {
+    btn.textContent = text;
+    setTimeout(function () { btn.textContent = "Share link"; }, 1500);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function () { done("Link copied"); }).catch(function () { done("Copy URL"); });
+  } else if (window.prompt) {
+    window.prompt("Copy this share link", url);
+  }
+});
 
 /* password lock: hides all editing controls until the password is entered via the faint name at the bottom */
 var PW_KEY = "portfolio-pw", LOCK_KEY = "portfolio-locked", locked = false, dlgMode = "";

@@ -1,877 +1,190 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f3f4f8">
-<meta name="description" content="Personal portfolio, projects, skills, education, and contact information.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Your Name | Portfolio">
-<meta property="og:description" content="Projects, skills, experience, and ways to get in touch.">
-<title>Your Name | Portfolio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-<!-- Firebase compat SDKs keep this file deployable on a static host. Replace the scaffold below. -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script>
-/*
- * Firebase web configuration is not a secret and belongs in browser code.
- * Replace the YOUR_* placeholders with values from Firebase Console.
- * ownerEmail and ownerUid are optional unless you want authenticated writes.
- */
-window.FIREBASE_CONFIG = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID",
-  ownerEmail: "",
-  ownerUid: ""
-};
-</script>
-<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head>
-<body>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abyakta – Portfolio</title>
 <style>
-/* Layout: floating glass nav, one big rounded hero panel, bento project grid, timelines, closing contact panel */
-:root {
-  --h: 228;
-  --bg: #f3f4f8;
-  --surface: #ffffff;
-  --fg: #0f1320;
-  --muted: #5c6577;
-  --line: #dde1ea;
-  --accent: hsl(var(--h) 80% 46%);
-  --accent-text: color-mix(in srgb, hsl(var(--h) 85% 45%) 75%, var(--fg));
-  --glass: color-mix(in srgb, var(--surface) 72%, transparent);
-  --ok: #17803d;
-  --danger: #c2342a;
-  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-mono: "Plus Jakarta Sans", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0a0c12; --surface: #141824; --fg: #eef1f8; --muted: #9aa4b6; --line: #262c3a;
-    --accent: hsl(var(--h) 100% 76%); --accent-text: hsl(var(--h) 100% 80%);
-    --ok: #5fd08a; --danger: #ff7a70; color-scheme: dark;
+  :root{--bg:#07060d;--card:#121223;--card2:#1b1634;--line:#26263d;--text:#f2f2f7;--mute:#a6a6bd;--accent:#b794f6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(900px 500px at 0% 0%,#2a1650 0%,transparent 60%),var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+  nav{position:sticky;top:16px;z-index:10;margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(18,18,35,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:20px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+  .dot{width:32px;height:32px;border-radius:50%;background:#1b1b30;display:grid;place-items:center;font-size:14px}
+  nav ul{display:flex;gap:26px;list-style:none}
+  nav a{color:var(--mute);text-decoration:none;font-size:15px}
+  nav a:hover{color:var(--text)}
+  .hero{margin-top:24px;padding:64px;border:1px solid var(--line);border-radius:32px;background:var(--card);display:flex;align-items:center;justify-content:space-between;gap:32px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;color:var(--mute);font-size:14px}
+  .badge i{width:10px;height:10px;border-radius:50%;background:#4ade80}
+  .hello{margin-top:36px;font-size:44px;font-weight:700;color:var(--accent)}
+  h1{font-size:76px;line-height:1.05;font-weight:300}
+  h1 b{font-weight:800}
+  .role{margin-top:12px;font-size:26px;font-weight:600;color:var(--accent)}
+  .intro{margin-top:20px;max-width:620px;font-size:19px}
+  .btns,.links{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+  .btn{padding:14px 24px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--text);font-size:16px}
+  .btn.primary{background:#f2f0fa;color:#111}
+  .pill{padding:8px 16px;border:1px solid var(--line);border-radius:999px;color:var(--text);text-decoration:none;font-size:14px}
+  .avatar{flex:none;width:240px;height:240px;border-radius:50%;padding:6px;background:linear-gradient(135deg,#6d4aff,#ff5e9c);display:grid}
+  .avatar span{display:grid;place-items:center;border-radius:50%;background:#131327;font-size:96px;font-weight:800;color:var(--accent)}
+  section{margin-top:96px}
+  .eyebrow{color:var(--accent);font-size:14px;letter-spacing:.12em;text-transform:uppercase}
+  h2{font-size:48px;font-weight:800;letter-spacing:-.02em;margin:4px 0 28px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .card{padding:32px;border:1px solid var(--line);border-radius:24px;background:var(--card)}
+  .card.feat{grid-column:1/-1;background:var(--card2);border-color:#5b3fa8}
+  .year{display:inline-block;padding:3px 12px;border-radius:999px;background:#0e0e1c;font-size:13px;color:var(--mute)}
+  .card h3{font-size:30px;margin:14px 0 8px}
+  .card p{color:var(--mute);font-size:17px}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .tags span{padding:5px 14px;border-radius:999px;background:#0e0e1c;font-size:14px}
+  .skills{display:flex;gap:12px;flex-wrap:wrap}
+  .skills span{padding:12px 22px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:17px}
+  .item{position:relative;padding-left:32px;margin-top:22px}
+  .item::before{content:"";position:absolute;left:0;top:8px;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+  .item .row{display:flex;justify-content:space-between;gap:12px}
+  .item h4{font-size:20px}
+  .item time{color:var(--mute);font-size:14px;white-space:nowrap}
+  .item p{color:var(--mute);margin-top:4px}
+  .label{color:var(--accent);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+  .facts{margin-top:18px}
+  .fact{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:16px 0;border-top:1px solid var(--line)}
+  .fact dt{color:var(--mute);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .fact dd{font-size:18px;word-break:break-word}
+  .fact a{color:var(--text)}
+  footer{margin:64px 0 40px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:var(--mute);font-size:14px}
+  @media(max-width:800px){
+    nav ul{gap:14px}.brand span:last-child{display:none}
+    .hero{flex-direction:column-reverse;padding:32px;align-items:flex-start}
+    h1{font-size:48px}.hello{font-size:34px}.avatar{width:160px;height:160px}.avatar span{font-size:64px}
+    .grid{grid-template-columns:1fr}h2{font-size:36px}.fact{grid-template-columns:1fr;gap:4px}
   }
-}
-:root[data-theme="dark"] {
-  --bg: #0a0c12; --surface: #141824; --fg: #eef1f8; --muted: #9aa4b6; --line: #262c3a;
-  --accent: hsl(var(--h) 100% 76%); --accent-text: hsl(var(--h) 100% 80%);
-  --ok: #5fd08a; --danger: #ff7a70; color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg); color: var(--fg);
-  font-family: var(--font-body); font-size: 16px; line-height: 1.65;
-  padding-block: 0 56px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(60rem 36rem at 12% -8%, hsl(var(--h) 90% 60% / .16), transparent 60%),
-    radial-gradient(48rem 30rem at 100% 8%, hsl(calc(var(--h) + 70) 90% 62% / .12), transparent 60%); }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
-.wrap { max-width: 1040px; margin: 0 auto; }
-a { color: var(--accent-text); }
-button { font: inherit; color: inherit; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
-
-/* nav */
-.navwrap { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; padding-block: 12px; }
-.nav { display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; min-width: 0; border: 0; background: none; padding: 0; }
-.brand .bd { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--fg); color: var(--bg); font-size: 12px; }
-.brand .bn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 18ch; }
-.links { display: flex; gap: 2px; margin-left: auto; }
-.links button { border: 0; background: none; padding: 6px 12px; border-radius: 99px; font-size: 14px; font-weight: 500; color: var(--muted); }
-.links button:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 7%, transparent); }
-.tools { display: flex; align-items: center; gap: 8px; }
-.btn { border: 1px solid var(--line); background: var(--surface); padding: 7px 16px; border-radius: 99px; font-size: 14px; font-weight: 500; white-space: nowrap; }
-.btn:hover { border-color: var(--fg); }
-.btn.primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-.btn.danger:hover { border-color: var(--danger); color: var(--danger); }
-.saved { font-family: var(--font-mono); font-size: 12px; color: var(--ok); opacity: 0; transition: opacity .2s; }
-.saved.on { opacity: 1; }
-.swatches { display: flex; gap: 6px; }
-.sw { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line); padding: 0; }
-.sw.on { box-shadow: 0 0 0 2px var(--fg); }
-@media (max-width: 760px) { .links { display: none; } .tools { margin-left: auto; } }
-@media (max-width: 520px) { .swatches, .saved { display: none; } .brand .bn { max-width: 9ch; } }
-
-/* hero */
-.hero { position: relative; margin-top: 12px; border: 1px solid var(--line); border-radius: 32px; background: var(--glass); padding: clamp(24px, 5vw, 56px); overflow: hidden; }
-.hero > :not(canvas) { position: relative; }
-#fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.hero h1, .hero .bio, .hero .role { text-shadow: 0 0 18px var(--surface), 0 0 6px var(--surface); }
-.intro { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 36px; align-items: center; }
-.intro-text { min-width: 0; }
-.status { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); border: 1px solid var(--line); background: var(--surface); padding: 4px 12px; border-radius: 99px; }
-.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 25%, transparent); }
-.hello-row { display: flex; align-items: flex-end; gap: 14px; margin-top: 28px; color: var(--accent-text); }
-.hello { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 5vw, 2.3rem); line-height: 1; letter-spacing: -0.02em; }
-.squig { width: 72px; height: 10px; margin-bottom: 6px; }
-h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.5rem, 8.5vw, 5rem); line-height: 1; letter-spacing: -0.035em; margin: 10px 0 14px; text-wrap: balance; }
-.im { font-weight: 500; color: var(--muted); }
-.nm { background: linear-gradient(transparent 66%, color-mix(in srgb, var(--accent) 34%, transparent) 66%); }
-.role { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.1rem, 3vw, 1.45rem); color: var(--accent-text); margin: 0 0 18px; }
-body:not(.editing) .role:not(:empty)::after { content: ""; display: inline-block; width: .5em; height: 1em; background: var(--accent); margin-left: .35em; vertical-align: -.14em; animation: blink 1.1s steps(1) infinite; }
-@keyframes blink { 50% { opacity: 0; } }
-.bio { max-width: 58ch; margin: 0; font-size: 1.06rem; }
-.cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-.cta-row .btn { padding: 11px 22px; font-size: 15px; }
-.socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.soc { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--line); background: var(--surface); color: var(--fg); text-decoration: none; padding: 5px 14px; border-radius: 99px; font-weight: 500; font-size: 14px; text-shadow: none; transition: background .15s, color .15s, border-color .15s; }
-a.soc:hover { background: var(--fg); border-color: var(--fg); color: var(--bg); }
-.soc.edit { border-radius: 12px; }
-
-.avatar-col { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.avatar { position: relative; width: 220px; height: 220px; }
-.ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, hsl(var(--h) 90% 55%), hsl(calc(var(--h) + 70) 90% 62%), hsl(calc(var(--h) - 40) 90% 60%), hsl(var(--h) 90% 55%)); animation: spin 9s linear infinite; }
-.face { position: absolute; inset: 6px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; overflow: hidden; border: 5px solid var(--bg); }
-.face img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.face span { font-family: var(--font-display); font-weight: 800; font-size: 4.2rem; color: var(--accent-text); letter-spacing: -0.03em; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (max-width: 700px) {
-  .intro { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  .avatar-col { order: -1; align-items: flex-start; }
-  .avatar { width: 120px; height: 120px; }
-  .face span { font-size: 2.4rem; }
-}
-
-/* sections */
-.sec { padding-top: 88px; scroll-margin-top: 80px; }
-.reveal-ready { opacity: 0; transform: translateY(28px); transition: opacity .75s cubic-bezier(.22, 1, .36, 1), transform .75s cubic-bezier(.22, 1, .36, 1); transition-delay: var(--reveal-delay, 0ms); }
-.reveal-ready.revealed { opacity: 1; transform: translateY(0); }
-.hero.reveal-ready { animation: hero-enter .85s cubic-bezier(.22, 1, .36, 1) both; }
-@keyframes hero-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) {
-  .reveal-ready { opacity: 1; transform: none; transition: none; }
-}
-.sh { display: flex; flex-direction: column; gap: 4px; margin-bottom: 28px; }
-.kick { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-text); }
-h2 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1.05; letter-spacing: -0.03em; margin: 0; }
-h2.on-card { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 18px; }
-.hint { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
-.duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 760px) { .duo { grid-template-columns: minmax(0, 1fr); } }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: clamp(20px, 3vw, 32px); min-width: 0; }
-
-/* projects: bento */
-.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 700px) { .grid { grid-template-columns: minmax(0, 1fr); } }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 26px; display: flex; flex-direction: column; gap: 12px; min-width: 0; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-@media (min-width: 701px) {
-  .grid .card:nth-child(3n+1) { grid-column: span 2; padding: 34px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 13%, var(--surface)), var(--surface) 70%); }
-  .grid .card:nth-child(3n+1) h3 { font-size: 2rem; }
-  .grid .card:nth-child(3n+1) p { max-width: 60ch; font-size: 16px; }
-}
-body:not(.editing) .card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); box-shadow: 0 24px 48px -24px hsl(var(--h) 90% 50% / .5); }
-.card .year { align-self: flex-start; font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line); padding: 2px 10px; border-radius: 99px; background: var(--bg); }
-.card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.4rem; line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
-.card p { margin: 0; color: var(--muted); font-size: 15px; }
-.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
-.tag { font-family: var(--font-mono); font-size: 12px; background: color-mix(in srgb, var(--accent) 12%, var(--bg)); padding: 2px 10px; border-radius: 99px; }
-.link { font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
-.rm { align-self: flex-start; font-size: 13px; border: 0; background: none; color: var(--muted); padding: 0; text-decoration: underline; }
-.rm:hover { color: var(--danger); }
-
-/* skills */
-.chips { display: flex; flex-wrap: wrap; gap: 10px; }
-.chip { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 8px 18px; font-size: 15px; font-weight: 500; transition: background .15s, border-color .15s, transform .15s; }
-body:not(.editing) .chip:hover { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); border-color: var(--accent); transform: translateY(-2px); }
-.chip button { border: 0; background: none; padding: 0; color: var(--muted); line-height: 1; font-size: 18px; }
-.chip button:hover { color: var(--danger); }
-.add { margin-top: 18px; }
-
-/* timelines */
-.tl { display: flex; flex-direction: column; gap: 26px; margin-top: 4px; }
-.item { position: relative; padding-left: 26px; border-left: 2px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; }
-.item::before { content: ""; position: absolute; left: -7px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--surface); }
-.item .school { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
-.item .years { font-family: var(--font-mono); font-size: 12px; color: var(--muted); padding-top: 4px; }
-.item .detail { grid-column: 1 / -1; color: var(--muted); font-size: 15px; }
-.item .rm { grid-column: 1 / -1; }
-
-/* about + contact */
-.facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 24px; margin: 0; }
-.facts dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
-.facts dd { margin: 0; overflow-wrap: anywhere; }
-.contact-panel { background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 22%, var(--surface)), var(--surface) 80%); }
-.contact-panel .lead { margin: -6px 0 14px; color: var(--muted); }
-.panel { display: flex; flex-direction: column; }
-.panel > .kick { display: block; margin-bottom: 8px; }
-h2.on-card { font-size: clamp(1.45rem, 3.4vw, 1.9rem); line-height: 1.15; margin-bottom: 18px; text-wrap: balance; }
-.rows { display: flex; flex-direction: column; }
-.rowi { display: grid; grid-template-columns: 104px minmax(0, 1fr) auto; align-items: center; gap: 4px 16px; padding: 14px 0; border-top: 1px solid var(--line); }
-.rowi .lab { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.rowi .val { font-weight: 500; overflow-wrap: anywhere; min-width: 0; }
-.rowi .acts { display: flex; gap: 6px; }
-.cp { font-family: var(--font-mono); font-size: 12px; text-decoration: none; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 99px; padding: 3px 12px; white-space: nowrap; }
-.cp:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-.rowi .rm { align-self: center; }
-.mailcta { align-self: flex-start; margin-top: auto; padding: 12px 24px; font-size: 15px; }
-.rows + .mailcta { margin-top: 22px; }
-@media (max-width: 520px) { .rowi { grid-template-columns: minmax(0, 1fr) auto; } .rowi .lab { grid-column: 1 / -1; } }
-
-footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-
-/* lock */
-body.locked #toggle, body.locked #theme, body.locked .swatches, body.locked #reset, body.locked #saved, body.locked #pwbtn, body.locked #lockbtn { display: none !important; }
-.unlock { background: none; border: 0; font: inherit; color: inherit; opacity: .5; padding: 8px 0 8px 24px; }
-.dlg { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-.dbox { width: min(380px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 26px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .5); }
-.dbox h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin: 0; letter-spacing: -0.02em; }
-.dbox p { margin: 0; font-size: 14px; color: var(--muted); }
-.dbox p.err { color: var(--danger); }
-.dbox input { font: inherit; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; }
-.drow { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-
-/* editing state */
-body.editing [data-f] { outline: 1px dashed color-mix(in srgb, var(--fg) 30%, transparent); outline-offset: 3px; border-radius: 4px; cursor: text; min-width: 2ch; }
-body.editing [data-f]:hover { outline-color: var(--muted); }
-body.editing [data-f]:focus { outline: 2px solid var(--accent-text); }
-[data-f]:empty::before { content: attr(data-ph); color: var(--muted); opacity: .6; }
-body:not(.editing) [data-f]:empty { display: none; }
-body:not(.editing) .edit-only { display: none !important; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } html { scroll-behavior: auto; } }
 </style>
-
+</head>
+<body>
 <div class="wrap">
-  <header class="navwrap">
-    <nav class="nav" aria-label="Main">
-      <button class="brand" type="button" data-go="top"><span class="bd" id="bd"></span><span class="bn" id="bn"></span></button>
+  <nav>
+    <div class="brand"><span class="dot">A</span><span>Abyakta</span></div>
+    <ul>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#journey">Journey</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <span class="badge"><i></i>Open to internships</span>
+      <div class="hello">Hello everyone! 〰</div>
+      <h1>I'm <b>Abyakta</b></h1>
+      <div class="role">B.Tech Student And Developer</div>
+      <p class="intro">A computer science student at Newton School of Technology who turns ideas into working apps. I build in Python, Kotlin and JavaScript, etc.</p>
+      <div class="btns">
+        <a class="btn primary" href="#work">View my work</a>
+        <a class="btn" href="#contact">Get in touch</a>
+      </div>
       <div class="links">
-        <button type="button" data-go="projects">Work</button>
-        <button type="button" data-go="skills">Skills</button>
-        <button type="button" data-go="journey">Journey</button>
-        <button type="button" data-go="contact">Contact</button>
+        <a class="pill" href="https://github.com/monster2005mac-dex" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="pill" href="https://www.linkedin.com/in/abyakta-prakash-pradhan-36a303422/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="pill" href="https://x.com/monster_2025" target="_blank" rel="noopener">X ↗</a>
       </div>
-      <div class="tools">
-        <div class="swatches" id="swatches" role="group" aria-label="Accent colour"></div>
-        <span class="saved" id="saved">saved</span>
-        <button class="btn" id="share" type="button">Share link</button>
-        <button class="btn edit-only" id="pwbtn" type="button">Password</button>
-        <button class="btn edit-only" id="lockbtn" type="button">Lock</button>
-        <button class="btn danger edit-only" id="reset" type="button">Reset</button>
-        <button class="btn" id="theme" type="button">Theme</button>
-        <button class="btn primary" id="toggle" type="button">Edit</button>
-      </div>
-    </nav>
-  </header>
-  <div id="app"></div>
-  <footer>
-    <span id="storage-note">Edits save in this browser.</span>
-    <button type="button" class="unlock" id="unlock" aria-label="Owner login"><span id="foot"></span></button>
-  </footer>
-</div>
-<div class="dlg" id="dlg" hidden>
-  <form class="dbox" id="dform" autocomplete="off">
-    <h3 id="dtitle"></h3>
-    <p id="dmsg"></p>
-    <input id="pw1" type="password" autocomplete="off" placeholder="Password">
-    <input id="pw2" type="password" autocomplete="off" placeholder="Repeat password" hidden>
-    <div class="drow">
-      <button class="btn" type="button" id="dcancel">Cancel</button>
-      <button class="btn primary" type="submit">OK</button>
     </div>
-  </form>
+    <div class="avatar"><span>A</span></div>
+  </header>
+
+  <section id="work">
+    <div class="eyebrow">Selected work</div>
+    <h2>Projects</h2>
+    <div class="grid">
+      <article class="card feat">
+        <span class="year">2026</span>
+        <h3>Deepfake Detection</h3>
+        <p>Hackathon entry for the Omnikon National Hackathon 2026 (CyberTech track). Flags manipulated video and images, built in phases from idea to final demo.</p>
+        <div class="tags"><span>Python</span><span>Machine learning</span><span>Computer vision</span></div>
+      </article>
+      <article class="card">
+        <span class="year">2026</span>
+        <h3>Tilth</h3>
+        <p>A website where you pick a crop, upload photos of your soil, and get a texture and condition read-out with a suitability verdict for that crop.</p>
+        <div class="tags"><span>Web</span><span>Image analysis</span></div>
+      </article>
+      <article class="card">
+        <span class="year">2026</span>
+        <h3>Natsumi Chat</h3>
+        <p>Android companion chat app with an AI character. Talks to a hosted Llama model, falls back to a second API, then to an on-device reply engine when offline.</p>
+        <div class="tags"><span>Android</span><span>Kotlin</span><span>LLM APIs</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="eyebrow">Toolbox</div>
+    <h2>Skills</h2>
+    <div class="skills">
+      <span>Python</span><span>Kotlin</span><span>JavaScript</span><span>Git</span><span>HTML</span><span>CSS</span><span>Java</span><span>Swift</span><span>C</span><span>C++</span>
+    </div>
+  </section>
+
+  <section id="journey">
+    <div class="eyebrow">Path so far</div>
+    <h2>Education and achievements</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Education</div>
+        <div class="item">
+          <div class="row"><h4>Newton School of Technology</h4><time>2026 to present</time></div>
+          <p>B.Tech in Computer Science. Coursework in programming fundamentals, mathematics for problem solving and applied physics.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label">Achievements</div>
+        <div class="item">
+          <div class="row"><h4>Omnikon National Hackathon</h4><time>2026</time></div>
+          <p>Participant, CyberTech track (deepfake detection). Till the 2nd Round.</p>
+        </div>
+        <div class="item">
+          <div class="row"><h4>Heckaoctober Fest 2026</h4><time>2026</time></div>
+          <p>Participate in Hackaoctober Fest 2026</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="eyebrow">Say hello</div>
+    <h2>About and contact</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="label">Quick facts</div>
+        <h3>A little about me</h3>
+        <dl class="facts">
+          <div class="fact"><dt>Name</dt><dd>Abyakta Prakash Pradhan</dd></div>
+          <div class="fact"><dt>Studying</dt><dd>B.Tech (AI &amp; ML)</dd></div>
+          <div class="fact"><dt>Languages</dt><dd>English, Hindi, Odia</dd></div>
+          <div class="fact"><dt>Interests</dt><dd>Hackathons, app building, problem solving</dd></div>
+          <div class="fact"><dt>Programming language</dt><dd>C, C++, Java, Kotlin, HTML, CSS, Javascript, Swift, Python</dd></div>
+        </dl>
+      </div>
+      <div class="card" style="background:var(--card2)">
+        <div class="label">Contact</div>
+        <h3>Let's build something together</h3>
+        <p>Open to internships, projects and hackathon teams.</p>
+        <dl class="facts">
+          <div class="fact"><dt>Email</dt><dd><a href="mailto:abyakta2023@gmail.com">abyakta2023@gmail.com</a></dd></div>
+          <div class="fact"><dt>GitHub</dt><dd><a href="https://github.com/monster2005mac-dex" target="_blank" rel="noopener">github.com/monster2005mac-dex</a></dd></div>
+          <div class="fact"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/abyakta-prakash-pradhan-36a303422/" target="_blank" rel="noopener">linkedin.com/in/abyakta-prakash-pradhan-36a303422</a></dd></div>
+          <div class="fact"><dt>X</dt><dd><a href="https://x.com/monster_2025" target="_blank" rel="noopener">x.com/monster_2025</a></dd></div>
+        </dl>
+        <div class="btns"><a class="btn primary" href="mailto:abyakta2023@gmail.com">Email me</a></div>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>© 2026 Abyakta</span><span>Abyakta</span></footer>
 </div>
-
-<script>
-var KEY = "portfolio-v1";
-var SAMPLE = {
-  greeting: "Hello!",
-  name: "Your Name",
-  role: "Computer science student and developer",
-  status: "Open to internships",
-  bio: "A computer science student at Newton School of Technology who turns ideas into working apps. I build in Python, Kotlin and JavaScript, and I like problems where software meets real life, from spotting fake media to helping farmers read their soil. Click Edit to make this yours.",
-  projects: [
-    { year: "2026", title: "Deepfake Detection", desc: "Hackathon entry for the Omnikon National Hackathon 2026 (CyberTech track). Flags manipulated video and images, built in phases from idea to final demo.", tags: "Python, Machine learning, Computer vision", link: "" },
-    { year: "2026", title: "Soil and Crop Advisor", desc: "A website where you pick a crop, upload photos of your soil, and get a texture and condition read-out with a suitability verdict for that crop.", tags: "Web, Image analysis", link: "" },
-    { year: "2026", title: "Natsumi Chat", desc: "Android companion chat app with an AI character. Talks to a hosted Llama model, falls back to a second API, then to an on-device reply engine when offline.", tags: "Android, Kotlin, LLM APIs", link: "" }
-  ],
-  skills: ["Python", "Kotlin", "JavaScript", "HTML and CSS", "Git", "Data structures"],
-  education: [
-    { school: "Newton School of Technology", detail: "B.Tech in Computer Science. Coursework in programming fundamentals, mathematics for problem solving and applied physics.", years: "2026 to present" }
-  ],
-  contact: [
-    { label: "Email", value: "you@example.com" },
-    { label: "GitHub", value: "github.com/your-handle" },
-    { label: "LinkedIn", value: "linkedin.com/in/your-handle" }
-  ],
-  socials: [
-    { label: "GitHub", url: "github.com/your-handle" },
-    { label: "LinkedIn", url: "linkedin.com/in/your-handle" },
-    { label: "Instagram", url: "instagram.com/your-handle" },
-    { label: "X", url: "x.com/your-handle" }
-  ],
-  facts: [
-    { label: "Based in", value: "Your city, India" },
-    { label: "Studying", value: "Computer Science" },
-    { label: "Languages", value: "English, Hindi" },
-    { label: "Interests", value: "Hackathons, app building, problem solving" }
-  ],
-  achievements: [
-    { year: "2026", title: "Omnikon National Hackathon", detail: "Participant, CyberTech track (deepfake detection)." },
-    { year: "2026", title: "Add an award or certificate", detail: "Say what it was for and who gave it." }
-  ]
-};
-
-var state, editing = false, timer, firestoreDb = null, currentPortfolioId = "";
-var sharePassword = "", firestoreReady = false;
-var revealObserver;
-function bytesToBase64(bytes) {
-  var binary = "";
-  for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function base64ToBytes(value) {
-  var base64 = value.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) base64 += "=";
-  var binary = atob(base64), bytes = new Uint8Array(binary.length);
-  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-async function deriveShareKey(password, salt) {
-  var material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
-  return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: salt, iterations: 250000, hash: "SHA-256" },
-    material,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt", "decrypt"]
-  );
-}
-async function encryptShareData(value, password) {
-  var salt = crypto.getRandomValues(new Uint8Array(16));
-  var iv = crypto.getRandomValues(new Uint8Array(12));
-  var key = await deriveShareKey(password, salt);
-  var plaintext = new TextEncoder().encode(JSON.stringify(value));
-  var encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, plaintext);
-  return { v: 1, s: bytesToBase64(salt), i: bytesToBase64(iv), c: bytesToBase64(new Uint8Array(encrypted)) };
-}
-async function decryptShareData(payload, password) {
-  var salt = base64ToBytes(payload.s), iv = base64ToBytes(payload.i), encrypted = base64ToBytes(payload.c);
-  var key = await deriveShareKey(password, salt);
-  var plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, encrypted);
-  return JSON.parse(new TextDecoder().decode(plaintext));
-}
-function initFirestore() {
-  if (firestoreReady) return true;
-  var config = window.FIREBASE_CONFIG || {};
-  var placeholders = ["YOUR_FIREBASE_API_KEY", "YOUR_PROJECT_ID", "YOUR_FIREBASE_APP_ID"];
-  if (!window.firebase || placeholders.indexOf(config.apiKey) >= 0 || placeholders.indexOf(config.projectId) >= 0 || placeholders.indexOf(config.appId) >= 0) return false;
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(config);
-    firestoreDb = firebase.firestore();
-    firestoreReady = true;
-    return true;
-  } catch (e) { return false; }
-}
-function newPortfolioId() {
-  var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  var bytes = new Uint8Array(8), id = "";
-  crypto.getRandomValues(bytes);
-  for (var i = 0; i < bytes.length; i++) id += alphabet[bytes[i] % alphabet.length];
-  return id;
-}
-function validPortfolioId(id) {
-  return /^[a-zA-Z0-9]{6,12}$/.test(id || "");
-}
-function setupScrollReveal() {
-  if (revealObserver) revealObserver.disconnect();
-  if (reduced) return;
-
-  var targets = document.querySelectorAll(".sec > .sh, .sec .card, .sec .chip, .sec .panel, .sec .item");
-  var groups = {};
-  targets.forEach(function (el) {
-    var parent = el.parentElement;
-    var key = parent && (parent.id || Array.prototype.indexOf.call(parent.parentElement ? parent.parentElement.children : [], parent));
-    var group = groups[key] = groups[key] || 0;
-    el.style.setProperty("--reveal-delay", Math.min(group++ * 70, 280) + "ms");
-    el.classList.add("reveal-ready");
-  });
-
-  revealObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add("revealed");
-      revealObserver.unobserve(entry.target);
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-
-  targets.forEach(function (el) { revealObserver.observe(el); });
-}
-function clone(o) { return JSON.parse(JSON.stringify(o)); }
-function load() {
-  try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
-  return clone(SAMPLE);
-}
-async function loadPortfolio() {
-  var id = new URL(location.href).searchParams.get("portfolio");
-  if (!id) return load();
-  currentPortfolioId = id;
-  var note = document.getElementById("storage-note");
-  if (note) note.textContent = "Loading shared portfolio…";
-  if (!validPortfolioId(id)) {
-    if (note) note.textContent = "This share link is damaged.";
-    alert("This portfolio link is damaged. It must contain a short portfolio ID.");
-    return clone(SAMPLE);
-  }
-  if (!initFirestore()) {
-    if (note) note.textContent = "Firebase sharing is not configured.";
-    alert("Firebase sharing is not available. Follow FIRESTORE_SETUP.md to configure this site.");
-    return clone(SAMPLE);
-  }
-  var snap;
-  try { snap = await firestoreDb.collection("portfolios").doc(id).get(); }
-  catch (e) {
-    if (note) note.textContent = "Unable to load shared portfolio.";
-    alert("The shared portfolio could not be loaded. Check the link and Firebase setup.");
-    return clone(SAMPLE);
-  }
-  if (!snap.exists) {
-    if (note) note.textContent = "Portfolio not found.";
-    alert("This portfolio does not exist or was removed.");
-    return clone(SAMPLE);
-  }
-  var payload = snap.data().encrypted;
-  if (!payload || payload.v !== 1 || !payload.s || !payload.i || !payload.c) {
-    if (note) note.textContent = "Shared portfolio is damaged.";
-    alert("This shared portfolio is damaged.");
-    return clone(SAMPLE);
-  }
-  for (var attempts = 0; attempts < 3; attempts++) {
-    var password = window.prompt(attempts ? "Incorrect password. Try again:" : "Enter the password for this encrypted portfolio:");
-    if (password == null) break;
-    try {
-      var sharedState = await decryptShareData(payload, password);
-      sharePassword = password;
-      if (note) note.textContent = "Shared portfolio loaded.";
-      return sharedState;
-    } catch (e) {}
-  }
-  if (note) note.textContent = "Shared portfolio is locked.";
-  alert("The portfolio could not be unlocked. Ask the sender for the correct password.");
-  return clone(SAMPLE);
-}
-function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-  var el = document.getElementById("saved");
-  el.classList.add("on"); clearTimeout(timer);
-  timer = setTimeout(function () { el.classList.remove("on"); }, 1200);
-  if (currentPortfolioId && sharePassword && firestoreReady) scheduleFirestoreUpdate();
-}
-var firestoreUpdateTimer;
-function scheduleFirestoreUpdate() {
-  clearTimeout(firestoreUpdateTimer);
-  firestoreUpdateTimer = setTimeout(updateCurrentFirestorePortfolio, 700);
-}
-async function updateCurrentFirestorePortfolio() {
-  if (!currentPortfolioId || !sharePassword || !initFirestore()) return;
-  var user = firebase.auth().currentUser;
-  if ((window.FIREBASE_CONFIG.ownerUid || window.FIREBASE_CONFIG.ownerEmail) && (!user || (window.FIREBASE_CONFIG.ownerUid && user.uid !== window.FIREBASE_CONFIG.ownerUid))) return;
-  try {
-    var shareState = clone(state);
-    delete shareState.photo;
-    var payload = await encryptShareData(shareState, sharePassword);
-    await firestoreDb.collection("portfolios").doc(currentPortfolioId).set({
-      encrypted: payload,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (e) {
-    var note = document.getElementById("storage-note");
-    if (note) note.textContent = "Portfolio saved locally; cloud update failed.";
-  }
-}
-function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-function f(path, val, ph, tag, cls) {
-  tag = tag || "span";
-  return "<" + tag + (cls ? ' class="' + cls + '"' : "") + ' data-f="' + path + '" data-ph="' + esc(ph) + '"' +
-    (editing ? ' contenteditable="plaintext-only" spellcheck="false"' : "") + ">" + esc(val) + "</" + tag + ">";
-}
-function href(v) { return /^https?:\/\//.test(v) ? v : "https://" + v; }
-function head(kick, title) { return '<div class="sh"><span class="kick">' + kick + "</span><h2>" + title + "</h2></div>"; }
-function initials(n) { return (n || "?").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join("").toUpperCase(); }
-function timeline(key, items, titleK, yearK, detailK, addLabel) {
-  var h = '<div class="tl">';
-  items.forEach(function (a, i) {
-    var b = key + "." + i + ".";
-    h += '<div class="item">' + f(b + titleK, a[titleK], "Title", "span", "school") + f(b + yearK, a[yearK], "Years", "span", "years") + f(b + detailK, a[detailK], "Details", "span", "detail");
-    if (editing) h += '<button class="rm" type="button" data-rm="' + key + "." + i + '">Remove</button>';
-    h += "</div>";
-  });
-  return h + '</div><button class="btn add edit-only" type="button" data-add="' + key + '">' + addLabel + "</button>";
-}
-function pairs(key, items, a, b, actions) {
-  var h = '<div class="rows">';
-  items.forEach(function (c, i) {
-    var p = key + "." + i + ".", v = c[b] || "";
-    h += '<div class="rowi"><span class="lab">' + f(p + a, c[a], "Label") + '</span><span class="val">' + f(p + b, v, "Value") + "</span>";
-    if (editing) h += '<button class="rm" type="button" data-rm="' + key + "." + i + '">Remove</button>';
-    else if (actions && v) {
-      var isMail = v.indexOf("@") > -1, isWeb = !isMail && /^[^\s]+\.[a-z]{2,}(\/\S*)?$/i.test(v);
-      h += '<span class="acts">' + (isWeb ? '<a class="cp" href="' + esc(href(v)) + '" target="_blank" rel="noopener">Open &#8599;</a>' : "") +
-        '<button class="cp" type="button" data-copy="' + esc(v) + '" data-lbl="Copy">Copy</button></span>';
-    }
-    h += "</div>";
-  });
-  return h + "</div>";
-}
-function mailBtn(items) {
-  if (editing) return "";
-  var m = items.filter(function (c) { return /e-?mail/i.test(c.label || "") && (c.value || "").indexOf("@") > -1; })[0];
-  return m ? '<button class="btn primary mailcta" type="button" data-copy="' + esc(m.value) + '" data-lbl="Copy email address">Copy email address</button>' : "";
-}
-function doCopy(btn) {
-  var v = btn.getAttribute("data-copy"), lbl = btn.getAttribute("data-lbl") || "Copy";
-  function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = lbl; }, 1500); }
-  function pick() {
-    var row = btn.closest(".rowi"), el = row && row.querySelector(".val");
-    if (el) { var r = document.createRange(); r.selectNodeContents(el); var sl = window.getSelection(); sl.removeAllRanges(); sl.addRange(r); }
-    done("Selected");
-  }
-  try { navigator.clipboard.writeText(v).then(function () { done("Copied"); }, pick); } catch (err) { pick(); }
-}
-
-function render() {
-  var s = state, h = "";
-  document.body.classList.toggle("editing", editing);
-  document.getElementById("toggle").textContent = editing ? "Done" : "Edit";
-  document.getElementById("bd").textContent = initials(s.name);
-  document.getElementById("bn").textContent = s.name || "";
-
-  /* hero */
-  h += '<section class="hero" id="top"><canvas id="fx" aria-hidden="true"></canvas><div class="intro"><div class="intro-text">';
-  h += f("status", s.status, "Availability", "span", "status");
-  h += '<div class="hello-row">' + f("greeting", s.greeting, "Greeting", "span", "hello") + '<svg class="squig" viewBox="0 0 120 12" aria-hidden="true"><path d="M2 8 Q 12 0 22 6 T 42 6 T 62 6 T 82 6 T 102 6 T 118 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>';
-  h += '<h1><span class="im">I\'m</span> ' + f("name", s.name, "Your name", "span", "nm") + "</h1>";
-  h += f("role", s.role, "What you do", "p", "role");
-  h += f("bio", s.bio, "A short introduction", "p", "bio");
-  h += '<div class="cta-row"><button class="btn primary" type="button" data-go="projects">View my work</button><button class="btn" type="button" data-go="contact">Get in touch</button></div>';
-  h += '<div class="socials">';
-  s.socials.forEach(function (o, i) {
-    var b = "socials." + i + ".";
-    if (editing) h += '<span class="soc edit">' + f(b + "label", o.label, "Platform") + f(b + "url", o.url, "Profile link") + '<button type="button" class="rm" data-rm="socials.' + i + '">Remove</button></span>';
-    else if (o.url) h += '<a class="soc" href="' + esc(href(o.url)) + '" target="_blank" rel="noopener">' + esc(o.label) + " &#8599;</a>";
-  });
-  h += '<button class="btn edit-only" type="button" data-add="socials">Add link</button></div></div>';
-  h += '<div class="avatar-col"><div class="avatar"><div class="ring"></div><div class="face">' +
-    (s.photo ? '<img src="' + s.photo + '" alt="' + esc(s.name) + '">' : "<span>" + esc(initials(s.name)) + "</span>") + "</div></div>";
-  if (editing) h += '<label class="btn" for="photo">' + (s.photo ? "Change photo" : "Add photo") + '</label><input id="photo" type="file" accept="image/*" hidden>' + (s.photo ? '<button class="rm" type="button" id="rmphoto">Remove photo</button>' : "");
-  h += "</div></div></section>";
-
-  /* projects */
-  h += '<section class="sec" id="projects">' + head("Selected work", "Projects");
-  if (editing) h += '<p class="hint">Click any text to edit. Separate tags with commas.</p>';
-  h += '<div class="grid">';
-  s.projects.forEach(function (p, i) {
-    var b = "projects." + i + ".";
-    h += '<article class="card">' + f(b + "year", p.year, "Year", "span", "year") + f(b + "title", p.title, "Project title", "h3") + f(b + "desc", p.desc, "What it does", "p");
-    if (editing) {
-      h += f(b + "tags", p.tags, "Tags, comma separated", "div", "link") + f(b + "link", p.link, "Link (optional)", "div", "link");
-      h += '<button class="rm" type="button" data-rm="projects.' + i + '">Remove project</button>';
-    } else {
-      var tags = (p.tags || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
-      if (tags.length) h += '<div class="tags">' + tags.map(function (t) { return '<span class="tag">' + esc(t) + "</span>"; }).join("") + "</div>";
-      if (p.link) h += '<a class="link" href="' + esc(href(p.link)) + '" target="_blank" rel="noopener">' + esc(p.link) + " &#8599;</a>";
-    }
-    h += "</article>";
-  });
-  h += '</div><button class="btn add edit-only" type="button" data-add="projects">Add project</button></section>';
-
-  /* skills */
-  h += '<section class="sec" id="skills">' + head("Toolbox", "Skills") + '<div class="chips">';
-  s.skills.forEach(function (k, i) {
-    h += '<span class="chip">' + f("skills." + i, k, "Skill") + (editing ? '<button type="button" aria-label="Remove skill" data-rm="skills.' + i + '">&times;</button>' : "") + "</span>";
-  });
-  h += '</div><button class="btn add edit-only" type="button" data-add="skills">Add skill</button></section>';
-
-  /* journey */
-  h += '<section class="sec" id="journey">' + head("Path so far", "Education and achievements") + '<div class="duo">';
-  h += '<div class="panel"><span class="kick">Education</span><div style="height:18px"></div>' + timeline("education", s.education, "school", "years", "detail", "Add education") + "</div>";
-  h += '<div class="panel"><span class="kick">Achievements</span><div style="height:18px"></div>' + timeline("achievements", s.achievements, "title", "year", "detail", "Add achievement") + "</div>";
-  h += "</div></section>";
-
-  /* about + contact */
-  h += '<section class="sec" id="contact">' + head("Say hello", "About and contact") + '<div class="duo">';
-  h += '<div class="panel"><span class="kick">Quick facts</span><h2 class="on-card">A little about me</h2>' + pairs("facts", s.facts, "label", "value") + '<button class="btn add edit-only" type="button" data-add="facts">Add detail</button></div>';
-  h += '<div class="panel contact-panel"><span class="kick">Contact</span><h2 class="on-card">Let\'s build something together</h2><p class="lead">Open to internships, projects and hackathon teams.</p>' + pairs("contact", s.contact, "label", "value", true) + mailBtn(s.contact) + '<button class="btn add edit-only" type="button" data-add="contact">Add contact</button></div>';
-  h += "</div></section>";
-
-  document.getElementById("app").innerHTML = h;
-  document.getElementById("foot").textContent = s.name || "";
-  applyHue();
-  startFx();
-  setupScrollReveal();
-}
-
-/* accent colour swatches and theme */
-var HUES = [228, 14, 152, 320, 270];
-function applyHue() {
-  document.documentElement.style.setProperty("--h", state.hue);
-  document.getElementById("swatches").innerHTML = HUES.map(function (hu) {
-    return '<button type="button" class="sw' + (hu === state.hue ? " on" : "") + '" data-hue="' + hu + '" aria-label="Accent ' + hu + '" style="background:hsl(' + hu + ' 85% 52%)"></button>';
-  }).join("");
-}
-document.getElementById("theme").addEventListener("click", function () {
-  var root = document.documentElement, cur = root.getAttribute("data-theme");
-  if (!cur) cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
-});
-
-/* hero background: dot grid that swells near the pointer */
-var mouse = { x: -999, y: -999 }, fxOn = false;
-var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-document.addEventListener("pointermove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; });
-function cv(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-function drawFx(t) {
-  var c = document.getElementById("fx");
-  if (!c) return;
-  var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
-  var w = Math.round(r.width * d), hh = Math.round(r.height * d);
-  if (c.width !== w || c.height !== hh) { c.width = w; c.height = hh; }
-  var g = c.getContext("2d");
-  g.setTransform(d, 0, 0, d, 0, 0);
-  g.clearRect(0, 0, r.width, r.height);
-  var acc = cv("--accent"), dot = cv("--line"), gap = 24;
-  var mx = mouse.x - r.left, my = mouse.y - r.top;
-  for (var i = 0; i * gap < r.width + gap; i++) {
-    for (var j = 0; j * gap < r.height + gap; j++) {
-      var x = i * gap + gap / 2, y = j * gap + gap / 2;
-      var wave = Math.sin(i * 0.35 + j * 0.25 + t / 900) * 0.5 + 0.5;
-      var near = Math.max(0, 1 - Math.hypot(x - mx, y - my) / 150);
-      g.fillStyle = near > 0.06 ? acc : dot;
-      g.globalAlpha = near > 0.06 ? 0.35 + near * 0.65 : 0.55 + wave * 0.45;
-      g.beginPath();
-      g.arc(x, y, 1 + wave * 0.8 + near * 4, 0, 6.2832);
-      g.fill();
-    }
-  }
-  g.globalAlpha = 1;
-}
-function loop(t) { drawFx(t); requestAnimationFrame(loop); }
-function startFx() {
-  if (reduced) { drawFx(0); return; }
-  if (!fxOn) { fxOn = true; requestAnimationFrame(loop); }
-}
-window.addEventListener("resize", function () { if (reduced) drawFx(0); });
-
-function setPath(path, val) {
-  var p = path.split("."), o = state;
-  for (var i = 0; i < p.length - 1; i++) o = o[p[i]];
-  o[p[p.length - 1]] = val;
-}
-var BLANK = {
-  projects: function () { return { year: String(new Date().getFullYear()), title: "New project", desc: "Describe what it does and what you built.", tags: "", link: "" }; },
-  skills: function () { return "New skill"; },
-  education: function () { return { school: "School", detail: "Degree and focus", years: "" }; },
-  contact: function () { return { label: "Label", value: "" }; },
-  facts: function () { return { label: "Label", value: "" }; },
-  socials: function () { return { label: "Platform", url: "" }; },
-  achievements: function () { return { year: String(new Date().getFullYear()), title: "New achievement", detail: "" }; }
-};
-
-document.addEventListener("input", function (e) {
-  var t = e.target.closest && e.target.closest("[data-f]");
-  if (!t) return;
-  setPath(t.getAttribute("data-f"), t.textContent);
-  if (t.getAttribute("data-f") === "name") { document.getElementById("bn").textContent = t.textContent; document.getElementById("bd").textContent = initials(t.textContent); }
-  save();
-});
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && e.target.closest && e.target.closest("[data-f]") && !e.target.matches("p.bio, .card p")) e.preventDefault();
-});
-document.addEventListener("click", function (e) {
-  var rm = e.target.closest("[data-rm]"), add = e.target.closest("[data-add]"), sw = e.target.closest("[data-hue]"), go = e.target.closest("[data-go]"), cp = e.target.closest("[data-copy]");
-  if (e.target.id === "rmphoto") { delete state.photo; save(); render(); }
-  else if (cp) { doCopy(cp); }
-  else if (go) {
-    var id = go.getAttribute("data-go"), el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-  } else if (sw) {
-    state.hue = parseInt(sw.getAttribute("data-hue"), 10); save(); applyHue();
-  } else if (rm) {
-    var p = rm.getAttribute("data-rm").split(".");
-    state[p[0]].splice(parseInt(p[1], 10), 1); save(); render();
-  } else if (add) {
-    var k = add.getAttribute("data-add");
-    state[k].push(BLANK[k]()); save(); render();
-  }
-});
-document.addEventListener("change", function (e) {
-  if (!e.target || e.target.id !== "photo" || !e.target.files[0]) return;
-  var rd = new FileReader();
-  rd.onload = function () {
-    var im = new Image();
-    im.onload = function () {
-      var n = 360, c = document.createElement("canvas"), side = Math.min(im.width, im.height);
-      c.width = c.height = n;
-      c.getContext("2d").drawImage(im, (im.width - side) / 2, (im.height - side) / 2, side, side, 0, 0, n, n);
-      state.photo = c.toDataURL("image/jpeg", 0.85); save(); render();
-    };
-    im.src = rd.result;
-  };
-  rd.readAsDataURL(e.target.files[0]);
-});
-document.getElementById("toggle").addEventListener("click", function () { if (locked) return; editing = !editing; render(); });
-document.getElementById("share").addEventListener("click", function () {
-  var btn = this;
-  function done(text) {
-    btn.textContent = text;
-    setTimeout(function () { btn.textContent = "Share link"; }, 1500);
-  }
-  if (!initFirestore()) {
-    done("Firebase setup required");
-    alert("Firebase sharing is not configured. Follow FIRESTORE_SETUP.md, replace the web config, and deploy again.");
-    return;
-  }
-  var password = window.prompt("Set a password for this share link (at least 4 characters)");
-  if (!password || password.length < 4) { if (password != null) done("Password too short"); return; }
-  var confirmation = window.prompt("Repeat the share-link password");
-  if (confirmation !== password) { done("Passwords differ"); return; }
-  var user = firebase.auth().currentUser;
-  var config = window.FIREBASE_CONFIG;
-  if ((config.ownerEmail || config.ownerUid) && (!user || (config.ownerUid && user.uid !== config.ownerUid))) {
-    done("Owner login required");
-    alert("Sign in using the owner's login before sharing or updating a portfolio.");
-    return;
-  }
-  encryptShareData((function () { var shareState = clone(state); delete shareState.photo; return shareState; }()), password).then(async function (payload) {
-    var id = currentPortfolioId && validPortfolioId(currentPortfolioId) ? currentPortfolioId : newPortfolioId();
-    try {
-      await firestoreDb.collection("portfolios").doc(id).set({
-        encrypted: payload,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    } catch (e) {
-      done("Save failed");
-      alert("The portfolio could not be saved to Firestore. Check Firebase setup and security rules.");
-      return;
-    }
-    currentPortfolioId = id;
-    sharePassword = password;
-    var shareUrl = new URL(location.href);
-    shareUrl.searchParams.set("portfolio", id);
-    shareUrl.hash = "";
-    var url = shareUrl.href;
-    history.replaceState(null, "", url);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () { done("Encrypted link copied"); }).catch(function () {
-        done("Copy unavailable");
-        window.prompt("Copy this encrypted share link", url);
-      });
-    } else {
-      done("Copy manually");
-      window.prompt("Copy this encrypted share link", url);
-    }
-  }).catch(function () { done("Encryption failed"); });
-});
-
-/* password lock: hides all editing controls until the password is entered via the faint name at the bottom */
-var PW_KEY = "portfolio-pw", LOCK_KEY = "portfolio-locked", locked = false, dlgMode = "";
-function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
-function hashPw(s) {
-  var plain = "pf:" + s;
-  if (window.crypto && crypto.subtle && window.TextEncoder) {
-    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(plain)).then(function (b) {
-      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
-    });
-  }
-  var h = 5381; for (var i = 0; i < plain.length; i++) h = ((h * 33) ^ plain.charCodeAt(i)) >>> 0;
-  return Promise.resolve("d" + h);
-}
-function setLocked(v) {
-  locked = v; lsSet(LOCK_KEY, v ? "1" : null);
-  document.body.classList.toggle("locked", v);
-  if (v) editing = false;
-  document.getElementById("unlock").style.cursor = v ? "pointer" : "default";
-  render();
-}
-function openDlg(mode) {
-  dlgMode = mode;
-  var t = document.getElementById("dtitle"), m = document.getElementById("dmsg"), p2 = document.getElementById("pw2");
-  document.getElementById("pw1").value = ""; p2.value = ""; m.className = "";
-  if (mode === "unlock") { t.textContent = "Owner login"; m.textContent = "Enter your password to bring back the edit controls."; p2.hidden = true; }
-  else { t.textContent = "Set a password"; m.textContent = mode === "set-lock" ? "Pick a password (4 or more characters). The page locks right after." : "Choose a new password (4 or more characters)."; p2.hidden = false; }
-  document.getElementById("dlg").hidden = false;
-  document.getElementById("pw1").focus();
-}
-function closeDlg() { document.getElementById("dlg").hidden = true; dlgMode = ""; }
-function dErr(msg) { var m = document.getElementById("dmsg"); m.textContent = msg; m.className = "err"; }
-document.getElementById("lockbtn").addEventListener("click", function () { if (lsGet(PW_KEY)) setLocked(true); else openDlg("set-lock"); });
-document.getElementById("pwbtn").addEventListener("click", function () { openDlg("set"); });
-document.getElementById("unlock").addEventListener("click", function () { if (locked) openDlg("unlock"); });
-document.getElementById("dcancel").addEventListener("click", closeDlg);
-document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !document.getElementById("dlg").hidden) closeDlg(); });
-document.getElementById("dform").addEventListener("submit", function (e) {
-  e.preventDefault();
-  var a = document.getElementById("pw1").value, b = document.getElementById("pw2").value;
-  if (dlgMode === "unlock") {
-    hashPw(a).then(function (hs) {
-      if (hs !== lsGet(PW_KEY)) { dErr("Wrong password. Try again."); return; }
-      if (window.FIREBASE_CONFIG.ownerEmail && initFirestore()) {
-        firebase.auth().signInWithEmailAndPassword(window.FIREBASE_CONFIG.ownerEmail, a).then(function (credential) {
-          var ownerUid = window.FIREBASE_CONFIG.ownerUid;
-          if (ownerUid && credential.user.uid !== ownerUid) {
-            firebase.auth().signOut();
-            dErr("This account is not the configured portfolio owner.");
-            return;
-          }
-          closeDlg(); setLocked(false);
-        }).catch(function () { dErr("Wrong password or Firebase owner sign-in is unavailable."); });
-      } else {
-        closeDlg(); setLocked(false);
-      }
-    });
-    return;
-  }
-  if (a.length < 4) return dErr("Use at least 4 characters.");
-  if (a !== b) return dErr("The two passwords do not match.");
-  hashPw(a).then(function (hs) {
-    lsSet(PW_KEY, hs);
-    var lockNow = dlgMode === "set-lock";
-    closeDlg();
-    if (lockNow) setLocked(true);
-  });
-});
-var resetArmed = false, resetTimer;
-document.getElementById("reset").addEventListener("click", function () {
-  var b = this;
-  if (!resetArmed) {
-    resetArmed = true; b.textContent = "Confirm?";
-    resetTimer = setTimeout(function () { resetArmed = false; b.textContent = "Reset"; }, 3000);
-    return;
-  }
-  clearTimeout(resetTimer); resetArmed = false; b.textContent = "Reset";
-  var hu = state.hue; state = clone(SAMPLE); state.hue = hu; save(); render();
-});
-
-loadPortfolio().then(function (loaded) {
-  state = loaded;
-  document.title = (state.name ? state.name + " | Portfolio" : "Portfolio");
-  if (state.hue == null || HUES.indexOf(state.hue) < 0) state.hue = 228;
-  if (state.greeting == null) state.greeting = "Hello!";
-  if (/^I study at Newton School/.test(state.bio || "")) state.bio = SAMPLE.bio;
-  ["socials", "facts", "achievements"].forEach(function (k) { if (!state[k]) state[k] = clone(SAMPLE[k]); });
-  locked = lsGet(LOCK_KEY) === "1" && !!lsGet(PW_KEY);
-  document.body.classList.toggle("locked", locked);
-  document.getElementById("unlock").style.cursor = locked ? "pointer" : "default";
-  render();
-});
-</script>
-
-
 </body>
 </html>

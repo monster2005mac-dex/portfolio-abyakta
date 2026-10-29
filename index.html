@@ -12,6 +12,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<!-- Firebase compat SDKs keep this file deployable on a static host. Replace the scaffold below. -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+/*
+ * Firebase web configuration is not a secret and belongs in browser code.
+ * Replace the YOUR_* placeholders with values from Firebase Console.
+ * ownerEmail and ownerUid are optional unless you want authenticated writes.
+ */
+window.FIREBASE_CONFIG = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_FIREBASE_APP_ID",
+  ownerEmail: "",
+  ownerUid: ""
+};
+</script>
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head>
 <body>
 <style>
@@ -248,7 +269,7 @@ body:not(.editing) .edit-only { display: none !important; }
   </header>
   <div id="app"></div>
   <footer>
-    <span>Edits save in this browser and in your share link.</span>
+    <span id="storage-note">Edits save in this browser.</span>
     <button type="button" class="unlock" id="unlock" aria-label="Owner login"><span id="foot"></span></button>
   </footer>
 </div>
@@ -305,30 +326,9 @@ var SAMPLE = {
   ]
 };
 
-var state, editing = false, timer;
+var state, editing = false, timer, firestoreDb = null, currentPortfolioId = "";
+var sharePassword = "", firestoreReady = false;
 var revealObserver;
-function encodeShareData(value) {
-  var bytes = new TextEncoder().encode(JSON.stringify(value));
-  var binary = "";
-  for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-function decodeShareData(value) {
-  var base64 = value.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) base64 += "=";
-  var binary = atob(base64), bytes = new Uint8Array(binary.length);
-  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return JSON.parse(new TextDecoder().decode(bytes));
-}
-function encodeEncryptedPayload(payload) {
-  return encodeURIComponent(JSON.stringify(payload)).replace(/'/g, "%27");
-}
-function decodeEncryptedPayload(value) {
-  try { return JSON.parse(decodeURIComponent(value)); }
-  catch (e) {
-    return decodeShareData(value);
-  }
-}
 function bytesToBase64(bytes) {
   var binary = "";
   for (var i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
@@ -365,12 +365,27 @@ async function decryptShareData(payload, password) {
   var plaintext = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, encrypted);
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
-function syncShareUrl() {
-  if (!state) return;
-  if (location.hash.indexOf("#portfolio-e=") === 0) return;
-  var url = new URL(location.href);
-  url.hash = "portfolio=" + encodeShareData(state);
-  history.replaceState(null, "", url.href);
+function initFirestore() {
+  if (firestoreReady) return true;
+  var config = window.FIREBASE_CONFIG || {};
+  var placeholders = ["YOUR_FIREBASE_API_KEY", "YOUR_PROJECT_ID", "YOUR_FIREBASE_APP_ID"];
+  if (!window.firebase || placeholders.indexOf(config.apiKey) >= 0 || placeholders.indexOf(config.projectId) >= 0 || placeholders.indexOf(config.appId) >= 0) return false;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    firestoreDb = firebase.firestore();
+    firestoreReady = true;
+    return true;
+  } catch (e) { return false; }
+}
+function newPortfolioId() {
+  var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  var bytes = new Uint8Array(8), id = "";
+  crypto.getRandomValues(bytes);
+  for (var i = 0; i < bytes.length; i++) id += alphabet[bytes[i] % alphabet.length];
+  return id;
+}
+function validPortfolioId(id) {
+  return /^[a-zA-Z0-9]{6,12}$/.test(id || "");
 }
 function setupScrollReveal() {
   if (revealObserver) revealObserver.disconnect();
@@ -398,39 +413,85 @@ function setupScrollReveal() {
 }
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function load() {
-  if (location.hash.indexOf("#portfolio=") === 0) {
-    try { return decodeShareData(location.hash.slice("#portfolio=".length)); } catch (e) {}
-  }
   try { var s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
   return clone(SAMPLE);
 }
 async function loadPortfolio() {
-  var prefix = "#portfolio-e=";
-  if (location.hash.indexOf(prefix) !== 0) return load();
-  var payload;
-  try { payload = decodeEncryptedPayload(location.hash.slice(prefix.length)); }
-  catch (e) { alert("This encrypted share link is damaged."); return load(); }
+  var id = new URL(location.href).searchParams.get("portfolio");
+  if (!id) return load();
+  currentPortfolioId = id;
+  var note = document.getElementById("storage-note");
+  if (note) note.textContent = "Loading shared portfolio…";
+  if (!validPortfolioId(id)) {
+    if (note) note.textContent = "This share link is damaged.";
+    alert("This portfolio link is damaged. It must contain a short portfolio ID.");
+    return clone(SAMPLE);
+  }
+  if (!initFirestore()) {
+    if (note) note.textContent = "Firebase sharing is not configured.";
+    alert("Firebase sharing is not available. Follow FIRESTORE_SETUP.md to configure this site.");
+    return clone(SAMPLE);
+  }
+  var snap;
+  try { snap = await firestoreDb.collection("portfolios").doc(id).get(); }
+  catch (e) {
+    if (note) note.textContent = "Unable to load shared portfolio.";
+    alert("The shared portfolio could not be loaded. Check the link and Firebase setup.");
+    return clone(SAMPLE);
+  }
+  if (!snap.exists) {
+    if (note) note.textContent = "Portfolio not found.";
+    alert("This portfolio does not exist or was removed.");
+    return clone(SAMPLE);
+  }
+  var payload = snap.data().encrypted;
   if (!payload || payload.v !== 1 || !payload.s || !payload.i || !payload.c) {
-    alert("This encrypted share link is damaged.");
-    return load();
+    if (note) note.textContent = "Shared portfolio is damaged.";
+    alert("This shared portfolio is damaged.");
+    return clone(SAMPLE);
   }
   for (var attempts = 0; attempts < 3; attempts++) {
     var password = window.prompt(attempts ? "Incorrect password. Try again:" : "Enter the password for this encrypted portfolio:");
     if (password == null) break;
     try {
       var sharedState = await decryptShareData(payload, password);
+      sharePassword = password;
+      if (note) note.textContent = "Shared portfolio loaded.";
       return sharedState;
     } catch (e) {}
   }
+  if (note) note.textContent = "Shared portfolio is locked.";
   alert("The portfolio could not be unlocked. Ask the sender for the correct password.");
   return clone(SAMPLE);
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-  syncShareUrl();
   var el = document.getElementById("saved");
   el.classList.add("on"); clearTimeout(timer);
   timer = setTimeout(function () { el.classList.remove("on"); }, 1200);
+  if (currentPortfolioId && sharePassword && firestoreReady) scheduleFirestoreUpdate();
+}
+var firestoreUpdateTimer;
+function scheduleFirestoreUpdate() {
+  clearTimeout(firestoreUpdateTimer);
+  firestoreUpdateTimer = setTimeout(updateCurrentFirestorePortfolio, 700);
+}
+async function updateCurrentFirestorePortfolio() {
+  if (!currentPortfolioId || !sharePassword || !initFirestore()) return;
+  var user = firebase.auth().currentUser;
+  if ((window.FIREBASE_CONFIG.ownerUid || window.FIREBASE_CONFIG.ownerEmail) && (!user || (window.FIREBASE_CONFIG.ownerUid && user.uid !== window.FIREBASE_CONFIG.ownerUid))) return;
+  try {
+    var shareState = clone(state);
+    delete shareState.photo;
+    var payload = await encryptShareData(shareState, sharePassword);
+    await firestoreDb.collection("portfolios").doc(currentPortfolioId).set({
+      encrypted: payload,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    var note = document.getElementById("storage-note");
+    if (note) note.textContent = "Portfolio saved locally; cloud update failed.";
+  }
 }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 function f(path, val, ph, tag, cls) {
@@ -664,23 +725,54 @@ document.addEventListener("change", function (e) {
 });
 document.getElementById("toggle").addEventListener("click", function () { if (locked) return; editing = !editing; render(); });
 document.getElementById("share").addEventListener("click", function () {
-  var btn = this, url = location.href;
+  var btn = this;
   function done(text) {
     btn.textContent = text;
     setTimeout(function () { btn.textContent = "Share link"; }, 1500);
+  }
+  if (!initFirestore()) {
+    done("Firebase setup required");
+    alert("Firebase sharing is not configured. Follow FIRESTORE_SETUP.md, replace the web config, and deploy again.");
+    return;
   }
   var password = window.prompt("Set a password for this share link (at least 4 characters)");
   if (!password || password.length < 4) { if (password != null) done("Password too short"); return; }
   var confirmation = window.prompt("Repeat the share-link password");
   if (confirmation !== password) { done("Passwords differ"); return; }
-  encryptShareData((function () { var shareState = clone(state); delete shareState.photo; return shareState; }()), password).then(function (payload) {
+  var user = firebase.auth().currentUser;
+  var config = window.FIREBASE_CONFIG;
+  if ((config.ownerEmail || config.ownerUid) && (!user || (config.ownerUid && user.uid !== config.ownerUid))) {
+    done("Owner login required");
+    alert("Sign in using the owner's login before sharing or updating a portfolio.");
+    return;
+  }
+  encryptShareData((function () { var shareState = clone(state); delete shareState.photo; return shareState; }()), password).then(async function (payload) {
+    var id = currentPortfolioId && validPortfolioId(currentPortfolioId) ? currentPortfolioId : newPortfolioId();
+    try {
+      await firestoreDb.collection("portfolios").doc(id).set({
+        encrypted: payload,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      done("Save failed");
+      alert("The portfolio could not be saved to Firestore. Check Firebase setup and security rules.");
+      return;
+    }
+    currentPortfolioId = id;
+    sharePassword = password;
     var shareUrl = new URL(location.href);
-    shareUrl.hash = "portfolio-e=" + encodeEncryptedPayload(payload);
-    url = shareUrl.href;
+    shareUrl.searchParams.set("portfolio", id);
+    shareUrl.hash = "";
+    var url = shareUrl.href;
     history.replaceState(null, "", url);
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () { done("Encrypted link copied"); }).catch(function () { window.prompt("Copy this encrypted share link", url); });
+      navigator.clipboard.writeText(url).then(function () { done("Encrypted link copied"); }).catch(function () {
+        done("Copy unavailable");
+        window.prompt("Copy this encrypted share link", url);
+      });
     } else {
+      done("Copy manually");
       window.prompt("Copy this encrypted share link", url);
     }
   }).catch(function () { done("Encryption failed"); });
@@ -728,7 +820,20 @@ document.getElementById("dform").addEventListener("submit", function (e) {
   var a = document.getElementById("pw1").value, b = document.getElementById("pw2").value;
   if (dlgMode === "unlock") {
     hashPw(a).then(function (hs) {
-      if (hs === lsGet(PW_KEY)) { closeDlg(); setLocked(false); } else dErr("Wrong password. Try again.");
+      if (hs !== lsGet(PW_KEY)) { dErr("Wrong password. Try again."); return; }
+      if (window.FIREBASE_CONFIG.ownerEmail && initFirestore()) {
+        firebase.auth().signInWithEmailAndPassword(window.FIREBASE_CONFIG.ownerEmail, a).then(function (credential) {
+          var ownerUid = window.FIREBASE_CONFIG.ownerUid;
+          if (ownerUid && credential.user.uid !== ownerUid) {
+            firebase.auth().signOut();
+            dErr("This account is not the configured portfolio owner.");
+            return;
+          }
+          closeDlg(); setLocked(false);
+        }).catch(function () { dErr("Wrong password or Firebase owner sign-in is unavailable."); });
+      } else {
+        closeDlg(); setLocked(false);
+      }
     });
     return;
   }
